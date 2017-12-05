@@ -1,3 +1,3 @@
 package network
 
-const messageDelimiter byte = 0x17
+const messageDelimiter byte = 23

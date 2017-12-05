@@ -4,28 +4,29 @@ import (
 	"github.com/maxiannicu/distributed-data/network"
 	"log"
 	"os"
+	"github.com/maxiannicu/distributed-data/data"
+	"github.com/maxiannicu/distributed-data/utils"
 	"time"
 )
 
-func main() {
-	go CreateNewListener()
-	//go CreateNewListener()
+func main()  {
+	repository := data.NewPersonRepository()
 
-	time.Sleep(time.Second * 10)
-}
-func CreateNewListener() {
-	listener, err := network.NewUdpListener(network.NewEndPoint("127.0.0.1", 31012))
+	sender, err := network.NewUdpSender(network.NewEndPoint("224.0.0.1", 31012))
 	if err != nil {
 		log.Panic(err)
 		os.Exit(-1)
 	}
-	for {
-		bytes, err := listener.Read()
+	defer sender.Close()
 
+	for {
+		bytes, err := utils.Serialize(utils.JsonFormat, repository.Get())
 		if err != nil {
 			log.Panic(err)
 		} else {
-			log.Println(string(bytes))
+			sender.Write(bytes)
 		}
+		time.Sleep(time.Second * 1)
 	}
 }
+
