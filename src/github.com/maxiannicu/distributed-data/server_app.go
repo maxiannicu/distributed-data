@@ -4,34 +4,28 @@ import (
 	"github.com/maxiannicu/distributed-data/network"
 	"log"
 	"os"
+	"time"
 )
 
-func serve(channel *network.TcpChannel) {
-	for ;channel.IsAlive(); {
-		if bytes, err := channel.Read(); err == nil {
-			log.Println(string(bytes))
-		}
-	}
-
-	log.Println("Connection closed")
-}
-
 func main() {
-	server, e := network.NewTcpServer(network.NewEndPoint("localhost", 31012))
+	go CreateNewListener()
+	//go CreateNewListener()
 
-	if e != nil {
-		log.Panic(e)
+	time.Sleep(time.Second * 10)
+}
+func CreateNewListener() {
+	listener, err := network.NewUdpListener(network.NewEndPoint("127.0.0.1", 31012))
+	if err != nil {
+		log.Panic(err)
 		os.Exit(-1)
 	}
-
 	for {
-		conn, err := server.AcceptConnection()
+		bytes, err := listener.Read()
 
 		if err != nil {
 			log.Panic(err)
 		} else {
-			go serve(conn)
+			log.Println(string(bytes))
 		}
 	}
-
 }

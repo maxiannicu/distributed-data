@@ -25,7 +25,7 @@ func NewTcpServer(e EndPoint) (*TcpServer, error) {
 }
 
 func (server *TcpServer) Close() {
-	server.Close()
+	server.listener.Close()
 }
 
 func (server *TcpServer) AcceptConnection() (*TcpChannel,error) {

@@ -21,8 +21,8 @@ func NewTcpChannel(conn *net.TCPConn) *TcpChannel {
 	}
 }
 
-func NewTcpChannelAsClient(e EndPoint) (*TcpChannel, error) {
-	addr, err := net.ResolveTCPAddr("tcp", e.String())
+func NewTcpChannelAsClient(remoteEndPoint EndPoint) (*TcpChannel, error) {
+	addr, err := net.ResolveTCPAddr("tcp", remoteEndPoint.String())
 
 	if err != nil {
 		return nil, err

@@ -3,23 +3,16 @@ package main
 import (
 	"github.com/maxiannicu/distributed-data/network"
 	"log"
-	"time"
+	"os"
 )
 
 func main()  {
-	endPoint := network.NewEndPoint("127.0.0.1", 31012)
-
-	client, err := network.NewTcpChannelAsClient(endPoint)
-
+	sender, err := network.NewUdpSender(network.NewEndPoint("127.0.0.1", 31012))
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
+		os.Exit(-1)
 	}
 
-	log.Println("Sending messages")
-	client.Write([]byte("Hello"))
-	client.Write([]byte("How are you"))
-
-	time.Sleep(1 * time.Second)
-
-	client.Close()
+	sender.Write([]byte("Hi"))
+	sender.Write([]byte("How are you"))
 }
