@@ -5,7 +5,8 @@ import (
 )
 
 type TcpServer struct {
-	listener *net.TCPListener
+	listener      *net.TCPListener
+	localEndPoint EndPoint
 }
 
 func NewTcpServer(e EndPoint) (*TcpServer, error) {
@@ -20,15 +21,12 @@ func NewTcpServer(e EndPoint) (*TcpServer, error) {
 	}
 
 	return &TcpServer{
-		listener: listener,
+		listener:      listener,
+		localEndPoint: e,
 	}, nil
 }
 
-func (server *TcpServer) Close() {
-	server.listener.Close()
-}
-
-func (server *TcpServer) AcceptConnection() (*TcpChannel,error) {
+func (server *TcpServer) AcceptConnection() (*TcpChannel, error) {
 	conn, err := server.listener.AcceptTCP()
 
 	if err != nil {
@@ -36,4 +34,12 @@ func (server *TcpServer) AcceptConnection() (*TcpChannel,error) {
 	}
 
 	return NewTcpChannel(conn), nil
+}
+
+func (server *TcpServer) LocalEndPoint() EndPoint {
+	return server.localEndPoint
+}
+
+func (server *TcpServer) Close() {
+	server.listener.Close()
 }

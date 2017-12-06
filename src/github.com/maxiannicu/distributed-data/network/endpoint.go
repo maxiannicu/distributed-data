@@ -3,17 +3,17 @@ package network
 import "fmt"
 
 type EndPoint struct {
-	host string
-	port int
+	Host string
+	Port int
 }
 
 func (e EndPoint) String() string {
-	return fmt.Sprintf("%s:%d", e.host, e.port)
+	return fmt.Sprintf("%s:%d", e.Host, e.Port)
 }
 
 func NewEndPoint(host string, port int) EndPoint {
 	return EndPoint{
-		host:host,
-		port:port,
+		Host: host,
+		Port: port,
 	}
 }

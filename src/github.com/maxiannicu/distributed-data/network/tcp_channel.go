@@ -63,6 +63,14 @@ func (channel *TcpChannel) IsAlive() bool {
 	return !channel.eofOccured
 }
 
+func (channel *TcpChannel) LocalEndPoint() EndPoint {
+	return toEndPoint(channel.conn.LocalAddr())
+}
+
+func (channel *TcpChannel) RemoteEndPoint() EndPoint {
+	return toEndPoint(channel.conn.RemoteAddr())
+}
+
 func (channel *TcpChannel) Close() {
 	channel.conn.Close()
 }

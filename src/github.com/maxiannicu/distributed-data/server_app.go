@@ -3,30 +3,23 @@ package main
 import (
 	"github.com/maxiannicu/distributed-data/network"
 	"log"
-	"os"
-	"github.com/maxiannicu/distributed-data/data"
-	"github.com/maxiannicu/distributed-data/utils"
-	"time"
 )
 
 func main()  {
-	repository := data.NewPersonRepository()
+	listener, err := network.NewMulticastUdpListener(network.NewEndPoint("224.0.0.1", 31013))
 
-	sender, err := network.NewUdpSender(network.NewEndPoint("224.0.0.1", 31012))
 	if err != nil {
-		log.Panic(err)
-		os.Exit(-1)
+	    log.Panic(err)
 	}
-	defer sender.Close()
 
 	for {
-		bytes, err := utils.Serialize(utils.JsonFormat, repository.Get())
+		bytes, err := listener.Read()
+
 		if err != nil {
 			log.Panic(err)
 		} else {
-			sender.Write(bytes)
+			log.Panic(string(bytes))
 		}
-		time.Sleep(time.Second * 1)
 	}
 }
 
