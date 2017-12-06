@@ -9,44 +9,52 @@ import (
 )
 
 type Application struct {
-	listeningServer    *network.TcpServer
-	discoveryUdpSender *network.UdpSender
+	listeningServer      *network.TcpServer
+	discoveryUdpSender   *network.UdpSender
 	discoveryUdpListener *network.UdpListener
-	discoveryDuration time.Duration
+	discoveryDuration    time.Duration
+	logger               *log.Logger
 }
 
 func NewApplication(config ApplicationConfig) (*Application, error) {
-	server, err := network.NewTcpServer(config.ListenEndPoint)
+	logger := utils.NewLogger("mediator")
+	logger.Println("Starting TCP server")
+	server, err := network.NewTcpServerWithEndpoint(config.ListenEndPoint)
 
 	if err != nil {
 		return nil, err
 	}
+	logger.Println("TCP server started on",server.LocalEndPoint())
 
+	logger.Println("Starting UDP sender")
 	sender, err := network.NewUdpSender(config.MulticastEndPoint)
 	if err != nil {
 		return nil, err
 	}
+	logger.Println("UDP sender started")
 
-
-	listener, err := network.NewUdpListener(config.MulticastEndPoint)
+	logger.Println("Starting UDP listener")
+	listener, err := network.NewUdpListener()
 	if err != nil {
 		return nil, err
 	}
+	logger.Println("UDP sender listener")
 
 	return &Application{
-		listeningServer:    server,
-		discoveryUdpSender: sender,
+		listeningServer:      server,
+		discoveryUdpSender:   sender,
 		discoveryUdpListener: listener,
-		discoveryDuration: time.Millisecond * time.Duration(config.DiscoveryDuration),
+		discoveryDuration:    time.Millisecond * time.Duration(config.DiscoveryDuration),
+		logger:               logger,
 	}, nil
 }
 
-func (application *Application) Listen() {
+func (application *Application) Loop() {
 	for {
 		channel, err := application.listeningServer.AcceptConnection()
 
 		if err != nil {
-			log.Panic(err)
+			application.logger.Panic(err)
 		} else {
 			go application.handleClient(channel)
 		}
@@ -54,23 +62,23 @@ func (application *Application) Listen() {
 }
 
 func (application *Application) handleClient(channel *network.TcpChannel) {
-	log.Println("Connection open with ", channel.RemoteEndPoint())
+	application.logger.Println("Connection open with ", channel.RemoteEndPoint())
 
 	for ; channel.IsAlive(); {
 		bytes, err := channel.Read()
 
 		if err != nil {
-			log.Println("Error reading on ", channel.RemoteEndPoint(), ". Error : ", err)
+			application.logger.Println(err)
 		} else {
 			request := network_dto.Request{}
 			err := utils.Deserealize(utils.JsonFormat, bytes, &request)
 			if err != nil {
-				log.Panic(err)
+				application.logger.Panic(err)
 			} else {
 				dataRequest := network_dto.DataRequest{}
 				err := utils.Deserealize(utils.JsonFormat, request.Data, &dataRequest)
 				if err != nil {
-					log.Panic(err)
+					application.logger.Panic(err)
 				} else {
 					application.findMasterNode()
 				}

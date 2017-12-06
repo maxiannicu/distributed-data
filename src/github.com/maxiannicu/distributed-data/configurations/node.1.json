@@ -1,0 +1,23 @@
+{
+  "identificator": "node_chisinau",
+  "connections": [
+    "node_london"
+  ],
+  "data": [
+    {
+      "firstName": "Mihail",
+      "lastName": "Botnari",
+      "age": 22
+    },
+    {
+      "firstName": "Ion",
+      "lastName": "Druta",
+      "age": 33
+    },
+    {
+      "firstName": "Vlad",
+      "lastName": "Plahotniuc",
+      "age": 54
+    }
+  ]
+}

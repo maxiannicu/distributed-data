@@ -5,15 +5,10 @@ import (
 )
 
 type TcpServer struct {
-	listener      *net.TCPListener
-	localEndPoint EndPoint
+	listener *net.TCPListener
 }
 
-func NewTcpServer(e EndPoint) (*TcpServer, error) {
-	addr, err := net.ResolveTCPAddr("tcp", e.String())
-	if err != nil {
-		return nil, err
-	}
+func createTcpServer(addr *net.TCPAddr) (*TcpServer, error) {
 	listener, err := net.ListenTCP("tcp", addr)
 
 	if err != nil {
@@ -21,9 +16,22 @@ func NewTcpServer(e EndPoint) (*TcpServer, error) {
 	}
 
 	return &TcpServer{
-		listener:      listener,
-		localEndPoint: e,
+		listener: listener,
 	}, nil
+}
+
+
+func NewTcpServerWithEndpoint(e EndPoint) (*TcpServer, error) {
+	addr, err := net.ResolveTCPAddr("tcp", e.String())
+	if err != nil {
+		return nil, err
+	}
+
+	return createTcpServer(addr)
+}
+
+func NewTcpServer() (*TcpServer, error) {
+	return createTcpServer(nil)
 }
 
 func (server *TcpServer) AcceptConnection() (*TcpChannel, error) {
@@ -37,7 +45,7 @@ func (server *TcpServer) AcceptConnection() (*TcpChannel, error) {
 }
 
 func (server *TcpServer) LocalEndPoint() EndPoint {
-	return server.localEndPoint
+	return toEndPoint(server.listener.Addr())
 }
 
 func (server *TcpServer) Close() {

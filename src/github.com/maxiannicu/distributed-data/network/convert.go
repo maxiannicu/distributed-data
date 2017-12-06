@@ -2,12 +2,26 @@ package network
 
 import (
 	"net"
-	"fmt"
+	"strings"
+	"strconv"
 )
 
 func toEndPoint(address net.Addr) EndPoint {
-	endPoint := EndPoint{}
-	fmt.Sscanf(address.String(),"%s:%d", &endPoint.Host, &endPoint.Port)
+	split := strings.Split(address.String(), ":")
+	untilPort := len(split) - 1
+	port, _ := strconv.Atoi(split[untilPort])
 
-	return endPoint
+	return EndPoint{
+		Host: getHost(strings.Join(split[:untilPort], "")),
+		Port: port,
+	}
+}
+func getHost(host string) string {
+	ipv4 := net.ParseIP(host).To4()
+	ipAsString := ipv4.String()
+	if ipv4 == nil {
+		// trick for avoiding IP problem when sending details
+		ipAsString = "127.0.0.1"
+	}
+	return ipAsString
 }

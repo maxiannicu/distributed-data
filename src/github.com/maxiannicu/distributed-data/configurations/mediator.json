@@ -7,9 +7,5 @@
     "host" : "224.0.0.1",
     "port" : 31013
   },
-  "discoveryListeningEndPoint": {
-    "host" : "127.0.0.1",
-    "port" : 31014
-  },
   "discoveryDuration" : 1000
 }

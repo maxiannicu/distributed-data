@@ -10,13 +10,9 @@ type UdpListener struct {
 	reader *bufio.Reader
 }
 
-func NewUdpListener(listenEndPoint EndPoint) (*UdpListener, error) {
-	addr, err := net.ResolveUDPAddr("udp", listenEndPoint.String())
-	if err != nil {
-		return nil, err
-	}
 
-	listen, err := net.ListenUDP("udp", addr)
+func createUdpListener(localAddr *net.UDPAddr) (*UdpListener, error) {
+	listen, err := net.ListenUDP("udp", localAddr)
 
 	if err != nil {
 		return nil, err
@@ -28,6 +24,19 @@ func NewUdpListener(listenEndPoint EndPoint) (*UdpListener, error) {
 	}, nil
 }
 
+func NewUdpListenerWithEndpoint(listenEndPoint EndPoint) (*UdpListener, error) {
+	addr, err := net.ResolveUDPAddr("udp", listenEndPoint.String())
+	if err != nil {
+		return nil, err
+	}
+
+	return createUdpListener(addr)
+}
+
+func NewUdpListener() (*UdpListener, error) {
+	return createUdpListener(nil)
+}
+
 func (listener *UdpListener) Read() ([]byte, error) {
 	bytes, err := listener.reader.ReadBytes(messageDelimiter)
 
@@ -36,6 +45,10 @@ func (listener *UdpListener) Read() ([]byte, error) {
 	}
 
 	return bytes[:len(bytes)-1], nil
+}
+
+func (listener *UdpListener) HasBytesAvailable() bool {
+	return listener.reader.Buffered() > 0
 }
 
 func (listener *UdpListener) LocalEndPoint() EndPoint {

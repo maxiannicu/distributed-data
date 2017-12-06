@@ -1,0 +1,18 @@
+{
+  "identificator": "node_london",
+  "connections": [
+    "node_chisinau"
+  ],
+  "data": [
+    {
+      "firstName": "Greg",
+      "lastName": "Young",
+      "age": 17
+    },
+    {
+      "firstName": "Michael",
+      "lastName": "Stewart",
+      "age": 23
+    }
+  ]
+}
