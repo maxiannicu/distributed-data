@@ -47,13 +47,14 @@ func (listener *UdpListener) Read() ([]byte, error) {
 	return bytes[:len(bytes)-1], nil
 }
 
-func (listener *UdpListener) HasBytesAvailable() bool {
-	return listener.reader.Buffered() > 0
-}
-
 func (listener *UdpListener) LocalEndPoint() EndPoint {
 	return toEndPoint(listener.conn.LocalAddr())
 }
+
+func (listener *UdpListener) HasData() bool {
+
+}
+
 
 func (listener *UdpListener) Close() {
 	listener.conn.Close()

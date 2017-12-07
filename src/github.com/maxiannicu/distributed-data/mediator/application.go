@@ -27,7 +27,7 @@ func NewApplication(config ApplicationConfig) (*Application, error) {
 	logger.Println("TCP server started on",server.LocalEndPoint())
 
 	logger.Println("Starting UDP sender")
-	sender, err := network.NewUdpSender(config.MulticastEndPoint)
+	sender, err := network.NewUdpSender(config.DiscoveryEndPoint)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func NewApplication(config ApplicationConfig) (*Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger.Println("UDP sender listener")
+	logger.Println("UDP listener started on", listener.LocalEndPoint())
 
 	return &Application{
 		listeningServer:      server,

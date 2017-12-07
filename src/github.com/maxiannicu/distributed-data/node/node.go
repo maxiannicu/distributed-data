@@ -8,10 +8,11 @@ import (
 )
 
 type Application struct {
-	server  *network.TcpServer
-	clients []*network.TcpChannel
-	data    []data.Person
-	logger *log.Logger
+	server            *network.TcpServer
+	clients           []*network.TcpChannel
+	data              []data.Person
+	discoveryListener *network.UdpListener
+	logger            *log.Logger
 }
 
 func NewApplication(config ApplicationConfig) (*Application, error) {
@@ -22,24 +23,30 @@ func NewApplication(config ApplicationConfig) (*Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger.Println("Tcp server started",server.LocalEndPoint())
+	logger.Println("Tcp server started", server.LocalEndPoint())
+
+	discoveryListener, err := network.NewUdpListenerWithEndpoint(config.DiscoveryEndPoint)
+	if err != nil {
+		return nil, err
+	}
 
 	return &Application{
-		server:  server,
-		clients: make([]*network.TcpChannel, 0),
-		data:    config.Data,
-		logger:  logger,
+		server:            server,
+		clients:           make([]*network.TcpChannel, 0),
+		data:              config.Data,
+		logger:            logger,
+		discoveryListener: discoveryListener,
 	}, nil
 }
 
 func (application *Application) ConnectTo(remoteEndPoint network.EndPoint) error {
-	application.logger.Println("Connecting to",remoteEndPoint)
+	application.logger.Println("Connecting to", remoteEndPoint)
 	channel, err := network.NewTcpChannelAsClient(remoteEndPoint)
 	if err != nil {
 		return err
 	}
 
-	application.logger.Println("Connected",remoteEndPoint)
+	application.logger.Println("Connected", remoteEndPoint)
 	application.clients = append(application.clients, channel)
 
 	return nil
@@ -50,5 +57,5 @@ func (application *Application) LocalEndPoint() network.EndPoint {
 }
 
 func (application *Application) Loop() {
-	application.logger.Println("Looping")
+	go application.listenDiscovery()
 }

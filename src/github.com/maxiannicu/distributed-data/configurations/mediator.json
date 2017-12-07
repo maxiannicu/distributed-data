@@ -3,9 +3,9 @@
     "host" : "127.0.0.1",
     "port" : 31012
   },
-  "multicastEndPoint": {
+  "discoveryEndPoint": {
     "host" : "224.0.0.1",
     "port" : 31013
   },
-  "discoveryDuration" : 1000
+  "discoveryDuration" : 2000
 }

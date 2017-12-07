@@ -27,7 +27,7 @@ func (application *Application) findMasterNode() {
 }
 func (application *Application) getDiscoveredNodes() []network_dto.DiscoveryResponse {
 	responses := make([]network_dto.DiscoveryResponse, 0)
-	for ; application.discoveryUdpListener.HasBytesAvailable(); {
+	for ; application.discoveryUdpListener.HasData(); {
 		bytes, err := application.discoveryUdpListener.Read()
 		if err != nil {
 			if err == io.EOF {

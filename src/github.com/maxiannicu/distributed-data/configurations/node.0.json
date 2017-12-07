@@ -3,6 +3,10 @@
   "connections": [
     "node_chisinau"
   ],
+  "discoveryEndPoint": {
+    "host" : "224.0.0.1",
+    "port" : 31013
+  },
   "data": [
     {
       "firstName": "Greg",

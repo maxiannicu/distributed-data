@@ -9,7 +9,7 @@ import (
 func GetFileNamesByPattern(regexPattern string) ([]string, error) {
 	files, err := ioutil.ReadDir("./")
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	fileNames := make([]string, 0)
