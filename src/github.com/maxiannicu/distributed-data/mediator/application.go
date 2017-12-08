@@ -24,7 +24,7 @@ func NewApplication(config ApplicationConfig) (*Application, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger.Println("TCP server started on",server.LocalEndPoint())
+	logger.Println("TCP server started on", server.LocalEndPoint())
 
 	logger.Println("Starting UDP sender")
 	sender, err := network.NewUdpSender(config.DiscoveryEndPoint)
@@ -80,7 +80,12 @@ func (application *Application) handleClient(channel *network.TcpChannel) {
 				if err != nil {
 					application.logger.Panic(err)
 				} else {
-					application.findMasterNode()
+					responseBytes, err := application.handleRequest(dataRequest)
+					if err != nil {
+						application.logger.Panic(err)
+					}
+
+					channel.Write(responseBytes)
 				}
 			}
 		}

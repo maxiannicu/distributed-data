@@ -1,13 +1,13 @@
 package node
 
 import (
-	"github.com/maxiannicu/distributed-data/data"
+	"github.com/maxiannicu/distributed-data/model"
 	"github.com/maxiannicu/distributed-data/network"
 )
 
 type ApplicationConfig struct {
 	Identificator     string
 	Connections       []string
-	Data              []data.Person
+	Data              []model.Person
 	DiscoveryEndPoint network.EndPoint
 }

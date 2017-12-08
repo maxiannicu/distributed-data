@@ -2,7 +2,7 @@ package node
 
 import (
 	"github.com/maxiannicu/distributed-data/network"
-	"github.com/maxiannicu/distributed-data/data"
+	"github.com/maxiannicu/distributed-data/model"
 	"log"
 	"github.com/maxiannicu/distributed-data/utils"
 )
@@ -10,7 +10,7 @@ import (
 type Application struct {
 	server            *network.TcpServer
 	clients           []*network.TcpChannel
-	data              []data.Person
+	data              []model.Person
 	discoveryListener *network.UdpListener
 	logger            *log.Logger
 }
@@ -58,4 +58,5 @@ func (application *Application) LocalEndPoint() network.EndPoint {
 
 func (application *Application) Loop() {
 	go application.listenDiscovery()
+	go application.handleTcpRequests()
 }
