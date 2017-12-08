@@ -4,6 +4,7 @@ import (
 	"net"
 	"bufio"
 	"time"
+	"github.com/maxiannicu/distributed-data/network_dto"
 )
 
 type UdpListener struct {
@@ -25,7 +26,7 @@ func createUdpListener(localAddr *net.UDPAddr) (*UdpListener, error) {
 	}, nil
 }
 
-func NewUdpListenerWithEndpoint(listenEndPoint EndPoint) (*UdpListener, error) {
+func NewUdpListenerWithEndpoint(listenEndPoint network_dto.EndPoint) (*UdpListener, error) {
 	addr, err := net.ResolveUDPAddr("udp", listenEndPoint.String())
 	if err != nil {
 		return nil, err
@@ -48,8 +49,8 @@ func (listener *UdpListener) Read() ([]byte, error) {
 	return bytes[:len(bytes)-1], nil
 }
 
-func (listener *UdpListener) LocalEndPoint() EndPoint {
-	return toEndPoint(listener.conn.LocalAddr())
+func (listener *UdpListener) LocalEndPoint() network_dto.EndPoint {
+	return network_dto.NewEndPointFromAddr(listener.conn.LocalAddr())
 }
 
 func (listener *UdpListener) SetReadTimeOut(time time.Time) {

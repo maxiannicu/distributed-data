@@ -9,13 +9,13 @@ import (
 )
 
 func main() {
-	channel, err := network.NewTcpChannelAsClient(network.NewEndPoint("127.0.0.1", 31012))
+	channel, err := network.NewTcpChannelAsClient(network_dto.NewEndPoint("127.0.0.1", 31012))
 
 	if err != nil {
 		log.Panic(err)
 	}
 
-	bytes, err := network_dto.CreateRequest(network_dto.GetDataRequestType, network_dto.DataRequest{
+	bytes, err := network_dto.NewRequest(network_dto.GetDataRequestType, network_dto.DataRequest{
 		OrderBy: "FirstName",
 	})
 	if err != nil {

@@ -4,7 +4,6 @@ import (
 	"github.com/maxiannicu/distributed-data/network"
 	"log"
 	"github.com/maxiannicu/distributed-data/utils"
-	"github.com/maxiannicu/distributed-data/network_dto"
 	"time"
 )
 
@@ -57,37 +56,6 @@ func (application *Application) Loop() {
 			application.logger.Panic(err)
 		} else {
 			go application.handleClient(channel)
-		}
-	}
-}
-
-func (application *Application) handleClient(channel *network.TcpChannel) {
-	application.logger.Println("Connection open with ", channel.RemoteEndPoint())
-
-	for ; channel.IsAlive(); {
-		bytes, err := channel.Read()
-
-		if err != nil {
-			application.logger.Println(err)
-		} else {
-			request := network_dto.Request{}
-			err := utils.Deserealize(utils.JsonFormat, bytes, &request)
-			if err != nil {
-				application.logger.Panic(err)
-			} else {
-				dataRequest := network_dto.DataRequest{}
-				err := utils.Deserealize(utils.JsonFormat, request.Data, &dataRequest)
-				if err != nil {
-					application.logger.Panic(err)
-				} else {
-					responseBytes, err := application.handleRequest(dataRequest)
-					if err != nil {
-						application.logger.Panic(err)
-					}
-
-					channel.Write(responseBytes)
-				}
-			}
 		}
 	}
 }

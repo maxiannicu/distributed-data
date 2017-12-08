@@ -4,6 +4,7 @@ import (
 	"net"
 	"bufio"
 	"io"
+	"github.com/maxiannicu/distributed-data/network_dto"
 )
 
 type TcpChannel struct {
@@ -21,7 +22,7 @@ func NewTcpChannel(conn *net.TCPConn) *TcpChannel {
 	}
 }
 
-func NewTcpChannelAsClient(remoteEndPoint EndPoint) (*TcpChannel, error) {
+func NewTcpChannelAsClient(remoteEndPoint network_dto.EndPoint) (*TcpChannel, error) {
 	addr, err := net.ResolveTCPAddr("tcp", remoteEndPoint.String())
 
 	if err != nil {
@@ -63,12 +64,12 @@ func (channel *TcpChannel) IsAlive() bool {
 	return !channel.eofOccured
 }
 
-func (channel *TcpChannel) LocalEndPoint() EndPoint {
-	return toEndPoint(channel.conn.LocalAddr())
+func (channel *TcpChannel) LocalEndPoint() network_dto.EndPoint {
+	return network_dto.NewEndPointFromAddr(channel.conn.LocalAddr())
 }
 
-func (channel *TcpChannel) RemoteEndPoint() EndPoint {
-	return toEndPoint(channel.conn.RemoteAddr())
+func (channel *TcpChannel) RemoteEndPoint() network_dto.EndPoint {
+	return network_dto.NewEndPointFromAddr(channel.conn.RemoteAddr())
 }
 
 func (channel *TcpChannel) Close() {

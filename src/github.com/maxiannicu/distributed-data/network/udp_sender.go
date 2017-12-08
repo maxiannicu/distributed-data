@@ -3,6 +3,7 @@ package network
 import (
 	"net"
 	"bufio"
+	"github.com/maxiannicu/distributed-data/network_dto"
 )
 
 type UdpSender struct {
@@ -10,7 +11,7 @@ type UdpSender struct {
 	writer *bufio.Writer
 }
 
-func NewUdpSender(remoteEndPoint EndPoint) (*UdpSender, error) {
+func NewUdpSender(remoteEndPoint network_dto.EndPoint) (*UdpSender, error) {
 	addr, err := net.ResolveUDPAddr("udp", remoteEndPoint.String())
 	if err != nil {
 		return nil, err

@@ -5,6 +5,7 @@ import (
 	"github.com/maxiannicu/distributed-data/model"
 	"log"
 	"github.com/maxiannicu/distributed-data/utils"
+	"github.com/maxiannicu/distributed-data/network_dto"
 )
 
 type Application struct {
@@ -39,7 +40,7 @@ func NewApplication(config ApplicationConfig) (*Application, error) {
 	}, nil
 }
 
-func (application *Application) ConnectTo(remoteEndPoint network.EndPoint) error {
+func (application *Application) ConnectTo(remoteEndPoint network_dto.EndPoint) error {
 	application.logger.Println("Connecting to", remoteEndPoint)
 	channel, err := network.NewTcpChannelAsClient(remoteEndPoint)
 	if err != nil {
@@ -52,7 +53,7 @@ func (application *Application) ConnectTo(remoteEndPoint network.EndPoint) error
 	return nil
 }
 
-func (application *Application) LocalEndPoint() network.EndPoint {
+func (application *Application) LocalEndPoint() network_dto.EndPoint {
 	return application.server.LocalEndPoint()
 }
 

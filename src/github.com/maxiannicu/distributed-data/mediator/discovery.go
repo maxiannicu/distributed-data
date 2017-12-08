@@ -5,11 +5,10 @@ import (
 	"time"
 	"github.com/maxiannicu/distributed-data/utils"
 	"net"
-	"github.com/maxiannicu/distributed-data/network"
 )
 
-func (application *Application) findMasterNode() (*network.EndPoint, bool) {
-	bytes, err := network_dto.CreateRequest(network_dto.DiscoveryRequestType, network_dto.DiscoveryRequest{
+func (application *Application) findMasterNode() (*network_dto.EndPoint, bool) {
+	bytes, err := network_dto.NewRequest(network_dto.DiscoveryRequestType, network_dto.DiscoveryRequest{
 		ResponseEndPoint: application.discoveryUdpListener.LocalEndPoint(),
 	})
 

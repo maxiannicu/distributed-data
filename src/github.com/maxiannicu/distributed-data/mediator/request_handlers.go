@@ -7,6 +7,33 @@ import (
 	"github.com/maxiannicu/distributed-data/utils"
 )
 
+func (application *Application) handleClient(channel *network.TcpChannel) {
+	application.logger.Println("Connection open with ", channel.RemoteEndPoint())
+
+	for {
+		if request, err := network.NextRequest(channel); err == nil {
+			dataRequest := network_dto.DataRequest{}
+			err := utils.Deserealize(utils.JsonFormat, request.Data, &dataRequest)
+			if err != nil {
+				application.logger.Panic(err)
+			} else {
+				responseBytes, err := application.handleRequest(dataRequest)
+				if err != nil {
+					application.logger.Panic(err)
+				}
+
+				channel.Write(responseBytes)
+			}
+		} else {
+			if !channel.IsAlive() {
+				return
+			}
+
+			application.logger.Panic(err)
+		}
+	}
+}
+
 func (application *Application) handleRequest(dataRequest network_dto.DataRequest) ([]byte, error) {
 	responseData := make([]model.Person, 0)
 	if masterEndPoint, ok := application.findMasterNode(); ok {
@@ -16,27 +43,18 @@ func (application *Application) handleRequest(dataRequest network_dto.DataReques
 			application.logger.Panic(err)
 		}
 
-		bytes, err := network_dto.CreateRequest(network_dto.GetNodeDataRequestType, "")
+		bytes, err := network_dto.NewRequest(network_dto.GetNodeDataRequestType, "")
 		if err != nil {
 			application.logger.Panic(err)
 		}
 
 		channel.Write(bytes)
-		responseBytes, err := channel.Read()
 
-		if err != nil {
-			application.logger.Panic(err)
-		}
-
-		response := network_dto.Response{}
-		err = utils.Deserealize(utils.JsonFormat, responseBytes, &response)
-
-		if err != nil {
-			application.logger.Panic(err)
-		}
-
-		err = utils.Deserealize(utils.JsonFormat, response.Data, &responseData)
-		if err != nil {
+		if response, err := network.NextResponse(channel); err == nil {
+			if err = utils.Deserealize(utils.JsonFormat, response.Data, &responseData); err != nil {
+				application.logger.Panic(err)
+			}
+		} else {
 			application.logger.Panic(err)
 		}
 	}

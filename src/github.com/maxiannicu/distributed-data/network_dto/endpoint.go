@@ -1,12 +1,29 @@
-package network
+package network_dto
 
 import (
+	"fmt"
 	"net"
 	"strings"
 	"strconv"
 )
 
-func toEndPoint(address net.Addr) EndPoint {
+type EndPoint struct {
+	Host string
+	Port int
+}
+
+func (e EndPoint) String() string {
+	return fmt.Sprintf("%s:%d", e.Host, e.Port)
+}
+
+func NewEndPoint(host string, port int) EndPoint {
+	return EndPoint{
+		Host: host,
+		Port: port,
+	}
+}
+
+func NewEndPointFromAddr(address net.Addr) EndPoint {
 	split := strings.Split(address.String(), ":")
 	untilPort := len(split) - 1
 	port, _ := strconv.Atoi(split[untilPort])
@@ -16,6 +33,7 @@ func toEndPoint(address net.Addr) EndPoint {
 		Port: port,
 	}
 }
+
 func getHost(host string) string {
 	ipv4 := net.ParseIP(host).To4()
 	ipAsString := ipv4.String()

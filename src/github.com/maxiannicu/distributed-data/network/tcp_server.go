@@ -2,6 +2,7 @@ package network
 
 import (
 	"net"
+	"github.com/maxiannicu/distributed-data/network_dto"
 )
 
 type TcpServer struct {
@@ -21,7 +22,7 @@ func createTcpServer(addr *net.TCPAddr) (*TcpServer, error) {
 }
 
 
-func NewTcpServerWithEndpoint(e EndPoint) (*TcpServer, error) {
+func NewTcpServerWithEndpoint(e network_dto.EndPoint) (*TcpServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", e.String())
 	if err != nil {
 		return nil, err
@@ -44,8 +45,8 @@ func (server *TcpServer) AcceptConnection() (*TcpChannel, error) {
 	return NewTcpChannel(conn), nil
 }
 
-func (server *TcpServer) LocalEndPoint() EndPoint {
-	return toEndPoint(server.listener.Addr())
+func (server *TcpServer) LocalEndPoint() network_dto.EndPoint {
+	return network_dto.NewEndPointFromAddr(server.listener.Addr())
 }
 
 func (server *TcpServer) Close() {

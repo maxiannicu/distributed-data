@@ -9,7 +9,7 @@ type Request struct {
 	Data []byte
 }
 
-func CreateRequest(requestType byte, data interface{}) ([]byte, error) {
+func NewRequest(requestType byte, data interface{}) ([]byte, error) {
 	serializedData, err := utils.Serialize(utils.JsonFormat, data)
 	if err != nil {
 		return nil, err

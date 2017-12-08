@@ -1,9 +1,11 @@
 package mediator
 
-import "github.com/maxiannicu/distributed-data/network"
+import (
+	"github.com/maxiannicu/distributed-data/network_dto"
+)
 
 type ApplicationConfig struct {
-	ListenEndPoint    network.EndPoint
-	DiscoveryEndPoint network.EndPoint
+	ListenEndPoint    network_dto.EndPoint
+	DiscoveryEndPoint network_dto.EndPoint
 	DiscoveryDuration int
 }

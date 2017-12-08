@@ -3,6 +3,7 @@ package network
 import (
 	"net"
 	"bufio"
+	"github.com/maxiannicu/distributed-data/network_dto"
 )
 
 type MulticastUdpListener struct {
@@ -10,7 +11,7 @@ type MulticastUdpListener struct {
 	reader *bufio.Reader
 }
 
-func NewMulticastUdpListener(listenEndPoint EndPoint) (*MulticastUdpListener, error) {
+func NewMulticastUdpListener(listenEndPoint network_dto.EndPoint) (*MulticastUdpListener, error) {
 	addr, err := net.ResolveUDPAddr("udp", listenEndPoint.String())
 	if err != nil {
 		return nil, err
