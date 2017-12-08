@@ -33,4 +33,6 @@ func main() {
 	utils.Deserealize(utils.JsonFormat, bytes, &response)
 
 	fmt.Println(string(response.Data))
+
+	channel.Close()
 }

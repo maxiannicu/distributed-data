@@ -3,11 +3,12 @@ package mediator
 import (
 	"github.com/maxiannicu/distributed-data/network_dto"
 	"time"
-	"io"
 	"github.com/maxiannicu/distributed-data/utils"
+	"net"
+	"github.com/maxiannicu/distributed-data/network"
 )
 
-func (application *Application) findMasterNode() {
+func (application *Application) findMasterNode() *network.EndPoint {
 	bytes, err := network_dto.CreateRequest(network_dto.DiscoveryRequestType, network_dto.DiscoveryRequest{
 		ResponseEndPoint: application.discoveryUdpListener.LocalEndPoint(),
 	})
@@ -18,25 +19,32 @@ func (application *Application) findMasterNode() {
 
 	application.logger.Println("Sending discovery command")
 	application.discoveryUdpSender.Write(bytes)
-	application.logger.Println("Waiting")
 	time.Sleep(application.discoveryDuration)
 
 	responses := application.getDiscoveredNodes()
 
-	application.logger.Println("Found", len(responses), "nodes")
+	application.logger.Println("Discovery done. Found", len(responses), "nodes")
+
+	if len(responses) == 0 {
+		return nil
+	} else {
+
+	}
 }
 func (application *Application) getDiscoveredNodes() []network_dto.DiscoveryResponse {
 	responses := make([]network_dto.DiscoveryResponse, 0)
-	for ; application.discoveryUdpListener.HasData(); {
+	application.discoveryUdpListener.SetReadTimeOut(time.Now().Add(application.discoveryDuration))
+	for {
 		bytes, err := application.discoveryUdpListener.Read()
 		if err != nil {
-			if err == io.EOF {
+			if err, ok := err.(net.Error); ok && err.Timeout() {
 				break
 			}
 			application.logger.Fatal(err)
 		} else {
 			response := network_dto.DiscoveryResponse{}
 			utils.Deserealize(utils.JsonFormat, bytes, &response)
+			application.logger.Println("Discovered",response.ConnectionEndPoint)
 			responses = append(responses, response)
 		}
 	}

@@ -3,6 +3,7 @@ package network
 import (
 	"net"
 	"bufio"
+	"time"
 )
 
 type UdpListener struct {
@@ -51,8 +52,8 @@ func (listener *UdpListener) LocalEndPoint() EndPoint {
 	return toEndPoint(listener.conn.LocalAddr())
 }
 
-func (listener *UdpListener) HasData() bool {
-
+func (listener *UdpListener) SetReadTimeOut(time time.Time) {
+	listener.conn.SetReadDeadline(time)
 }
 
 
