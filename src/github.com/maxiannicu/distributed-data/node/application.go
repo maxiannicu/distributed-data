@@ -14,6 +14,7 @@ type Application struct {
 	data              []model.Person
 	discoveryListener *network.UdpListener
 	logger            *log.Logger
+	inTransaction     bool
 }
 
 func NewApplication(config ApplicationConfig) (*Application, error) {
@@ -37,6 +38,7 @@ func NewApplication(config ApplicationConfig) (*Application, error) {
 		data:              config.Data,
 		logger:            logger,
 		discoveryListener: discoveryListener,
+		inTransaction:     false,
 	}, nil
 }
 
