@@ -5,8 +5,8 @@ import (
 )
 
 type Request struct {
-	Type byte
-	Data []byte
+	RequestType byte
+	Data        []byte
 }
 
 func NewRequest(requestType byte, data interface{}) ([]byte, error) {
@@ -16,7 +16,7 @@ func NewRequest(requestType byte, data interface{}) ([]byte, error) {
 	}
 
 	return utils.Serialize(utils.JsonFormat, Request{
-		Type: requestType,
-		Data: serializedData,
+		RequestType: requestType,
+		Data:        serializedData,
 	})
 }

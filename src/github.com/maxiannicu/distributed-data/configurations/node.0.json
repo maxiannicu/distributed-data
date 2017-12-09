@@ -3,9 +3,10 @@
   "connections": [
     "node_chisinau"
   ],
+  "contentType": 1,
   "discoveryEndPoint": {
-    "host" : "224.0.0.1",
-    "port" : 31013
+    "host": "224.0.0.1",
+    "port": 31013
   },
   "data": [
     {

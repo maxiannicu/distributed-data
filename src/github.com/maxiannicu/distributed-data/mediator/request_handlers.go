@@ -51,7 +51,7 @@ func (application *Application) handleRequest(dataRequest network_dto.DataReques
 		channel.Write(bytes)
 
 		if response, err := network.NextResponse(channel); err == nil {
-			if err = utils.Deserealize(utils.JsonFormat, response.Data, &responseData); err != nil {
+			if err = utils.Deserealize(response.ContentType, response.Data, &responseData); err != nil {
 				application.logger.Panic(err)
 			}
 		} else {
@@ -59,5 +59,5 @@ func (application *Application) handleRequest(dataRequest network_dto.DataReques
 		}
 	}
 
-	return network_dto.NewResponse(responseData)
+	return network_dto.NewResponse(dataRequest.Accept, responseData)
 }

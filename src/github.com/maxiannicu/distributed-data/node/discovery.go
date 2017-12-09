@@ -21,7 +21,7 @@ func (application *Application) listenDiscovery() {
 			application.logger.Panic(err)
 		}
 
-		if request.Type != network_dto.DiscoveryRequestType {
+		if request.RequestType != network_dto.DiscoveryRequestType {
 			application.logger.Panic("Not valid request for discovery")
 		}
 		application.logger.Println("Discovery request received")

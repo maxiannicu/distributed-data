@@ -1,4 +1,4 @@
 package utils
 
-const XMLFormat byte = 0x1f
-const JsonFormat byte = 0x2f
+const XMLFormat byte = 1
+const JsonFormat byte = 2

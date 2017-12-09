@@ -3,9 +3,10 @@
   "connections": [
     "node_london"
   ],
+  "contentType": 2,
   "discoveryEndPoint": {
-    "host" : "224.0.0.1",
-    "port" : 31013
+    "host": "224.0.0.1",
+    "port": 31013
   },
   "data": [
     {

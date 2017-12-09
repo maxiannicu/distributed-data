@@ -21,10 +21,10 @@ func (application *Application) handleTcpRequests() {
 
 func (application *Application) handleTcpChannel(channel *network.TcpChannel) {
 	if request, err := network.NextRequest(channel); err == nil {
-		if request.Type == network_dto.GetNodeDataRequestType {
+		if request.RequestType == network_dto.GetNodeDataRequestType {
 			application.logger.Println("Received GetNodeDataRequest")
 			if data, err := application.accumulateData(); err == nil {
-				if responseBytes, err := network_dto.NewResponse(data); err == nil {
+				if responseBytes, err := network_dto.NewResponse(application.contentType, data); err == nil {
 					application.logger.Println("Sending response back")
 					channel.Write(responseBytes)
 				} else {
@@ -56,13 +56,15 @@ func (application *Application) accumulateData() ([]model.Person, error) {
 				conn.Write(bytes)
 
 				if response, err := network.NextResponse(conn); err == nil {
-					clientData := make([]model.Person, 0)
-					if err := utils.Deserealize(utils.JsonFormat, response.Data, &clientData); err == nil {
-						for _, el := range clientData {
-							accumulate = append(accumulate, el)
+					if len(response.Data) > 0 {
+						clientData := make([]model.Person, 0)
+						if err := utils.Deserealize(response.ContentType, response.Data, &clientData); err == nil {
+							for _, el := range clientData {
+								accumulate = append(accumulate, el)
+							}
+						} else {
+							application.logger.Panic(err)
 						}
-					} else {
-						application.logger.Panic(err)
 					}
 				} else {
 					application.logger.Panic(err)

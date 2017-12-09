@@ -15,6 +15,7 @@ type Application struct {
 	discoveryListener *network.UdpListener
 	logger            *log.Logger
 	inTransaction     bool
+	contentType       byte
 }
 
 func NewApplication(config ApplicationConfig) (*Application, error) {
@@ -39,6 +40,7 @@ func NewApplication(config ApplicationConfig) (*Application, error) {
 		logger:            logger,
 		discoveryListener: discoveryListener,
 		inTransaction:     false,
+		contentType:       config.ContentType,
 	}, nil
 }
 

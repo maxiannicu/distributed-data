@@ -10,4 +10,5 @@ type ApplicationConfig struct {
 	Connections       []string
 	Data              []model.Person
 	DiscoveryEndPoint network_dto.EndPoint
+	ContentType       byte
 }

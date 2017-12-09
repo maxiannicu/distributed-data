@@ -17,6 +17,7 @@ func main() {
 
 	bytes, err := network_dto.NewRequest(network_dto.GetDataRequestType, network_dto.DataRequest{
 		OrderBy: "FirstName",
+		Accept:  utils.XMLFormat,
 	})
 	if err != nil {
 		log.Panic(err)
