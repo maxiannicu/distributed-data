@@ -24,8 +24,11 @@ func (application *Application) handleTcpChannel(channel *network.TcpChannel) {
 		if request.RequestType == network_dto.GetNodeDataRequestType {
 			application.logger.Println("Received GetNodeDataRequest")
 			if data, err := application.accumulateData(); err == nil {
-				if responseBytes, err := network_dto.NewResponse(application.contentType, data); err == nil {
-					application.logger.Println("Sending response back")
+				if responseBytes, err := network_dto.NewResponse(application.contentType, network_dto.NodeDataResponse{
+					Data: data,
+					Size: len(data),
+				}); err == nil {
+					application.logger.Println("Sending", len(data), "elements")
 					channel.Write(responseBytes)
 				} else {
 					application.logger.Panic(err)
@@ -47,6 +50,7 @@ func (application *Application) accumulateData() ([]model.Person, error) {
 
 	if !application.inTransaction {
 		application.inTransaction = true
+		application.logger.Println("Added own entries total of", len(application.data))
 		for _, el := range application.data {
 			accumulate = append(accumulate, el)
 		}
@@ -56,15 +60,14 @@ func (application *Application) accumulateData() ([]model.Person, error) {
 				conn.Write(bytes)
 
 				if response, err := network.NextResponse(conn); err == nil {
-					if len(response.Data) > 0 {
-						clientData := make([]model.Person, 0)
-						if err := utils.Deserealize(response.ContentType, response.Data, &clientData); err == nil {
-							for _, el := range clientData {
-								accumulate = append(accumulate, el)
-							}
-						} else {
-							application.logger.Panic(err)
+					dataResponse := network_dto.NodeDataResponse{}
+					if err := utils.Deserealize(response.ContentType, response.Data, &dataResponse); err == nil {
+						application.logger.Println("Adding received data from node with total of", dataResponse.Size)
+						for _, el := range dataResponse.Data {
+							accumulate = append(accumulate, el)
 						}
+					} else {
+						application.logger.Panic(err)
 					}
 				} else {
 					application.logger.Panic(err)

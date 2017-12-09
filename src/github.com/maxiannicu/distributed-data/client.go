@@ -16,7 +16,7 @@ func main() {
 	}
 
 	bytes, err := network_dto.NewRequest(network_dto.GetDataRequestType, network_dto.DataRequest{
-		OrderBy: "FirstName",
+		OrderBy: "Age",
 		Accept:  utils.XMLFormat,
 	})
 	if err != nil {

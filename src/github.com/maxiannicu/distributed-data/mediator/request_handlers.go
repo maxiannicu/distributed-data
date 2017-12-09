@@ -5,6 +5,7 @@ import (
 	"github.com/maxiannicu/distributed-data/model"
 	"github.com/maxiannicu/distributed-data/network"
 	"github.com/maxiannicu/distributed-data/utils"
+	"strings"
 )
 
 func (application *Application) handleClient(channel *network.TcpChannel) {
@@ -35,7 +36,7 @@ func (application *Application) handleClient(channel *network.TcpChannel) {
 }
 
 func (application *Application) handleRequest(dataRequest network_dto.DataRequest) ([]byte, error) {
-	responseData := make([]model.Person, 0)
+	nodeDataResponse := network_dto.NodeDataResponse{}
 	if masterEndPoint, ok := application.findMasterNode(); ok {
 		channel, err := network.NewTcpChannelAsClient(*masterEndPoint)
 
@@ -51,7 +52,7 @@ func (application *Application) handleRequest(dataRequest network_dto.DataReques
 		channel.Write(bytes)
 
 		if response, err := network.NextResponse(channel); err == nil {
-			if err = utils.Deserealize(response.ContentType, response.Data, &responseData); err != nil {
+			if err = utils.Deserealize(response.ContentType, response.Data, &nodeDataResponse); err != nil {
 				application.logger.Panic(err)
 			}
 		} else {
@@ -59,5 +60,38 @@ func (application *Application) handleRequest(dataRequest network_dto.DataReques
 		}
 	}
 
-	return network_dto.NewResponse(dataRequest.Accept, responseData)
+	if len(dataRequest.OrderBy) > 0 {
+		var sortFunc func(a, b model.Person) int
+
+		switch strings.ToLower(dataRequest.OrderBy) {
+		case "firstname":
+			sortFunc = func(a, b model.Person) int {
+				return strings.Compare(a.FirstName, b.FirstName)
+			}
+		case "lastname":
+			sortFunc = func(a, b model.Person) int {
+				return strings.Compare(a.LastName, b.LastName)
+			}
+		case "age":
+			sortFunc = func(a, b model.Person) int {
+				return int(a.Age) - int(b.Age)
+			}
+		}
+
+		if sortFunc != nil {
+			length := nodeDataResponse.Size
+			for i := 0; i < length; i++ {
+				for e := i + 1; e < length; e++ {
+					if sortFunc(nodeDataResponse.Data[i], nodeDataResponse.Data[e]) > 0 {
+						nodeDataResponse.Data[i], nodeDataResponse.Data[e] = nodeDataResponse.Data[e], nodeDataResponse.Data[i]
+					}
+				}
+			}
+		}
+	}
+
+	return network_dto.NewResponse(dataRequest.Accept, network_dto.DataResponse{
+		Data: nodeDataResponse.Data,
+		Size: nodeDataResponse.Size,
+	})
 }
