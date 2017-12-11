@@ -5,6 +5,7 @@ import (
 	"github.com/maxiannicu/distributed-data/network_dto"
 	"github.com/maxiannicu/distributed-data/model"
 	"github.com/maxiannicu/distributed-data/utils"
+	"fmt"
 )
 
 func (application *Application) handleTcpRequests() {
@@ -20,29 +21,34 @@ func (application *Application) handleTcpRequests() {
 }
 
 func (application *Application) handleTcpChannel(channel *network.TcpChannel) {
-	if request, err := network.NextRequest(channel); err == nil {
-		if request.RequestType == network_dto.GetNodeDataRequestType {
-			application.logger.Println("Received GetNodeDataRequest")
-			if data, err := application.accumulateData(); err == nil {
-				if responseBytes, err := network_dto.NewResponse(application.contentType, network_dto.NodeDataResponse{
-					Data: data,
-					Size: len(data),
-				}); err == nil {
-					application.logger.Println("Sending", len(data), "elements")
-					channel.Write(responseBytes)
+	for ; channel.IsAlive(); {
+		if request, err := network.NextRequest(channel); err == nil {
+			if request.RequestType == network_dto.GetNodeDataRequestType {
+				application.logger.Println("Received GetNodeDataRequest")
+				if data, err := application.accumulateData(); err == nil {
+					if responseBytes, err := network_dto.NewResponse(application.contentType, network_dto.NodeDataResponse{
+						Data: data,
+						Size: len(data),
+					}); err == nil {
+						application.logger.Println("Sending", len(data), "elements")
+						channel.Write(responseBytes)
+					} else {
+						application.logger.Panic(err)
+					}
 				} else {
 					application.logger.Panic(err)
 				}
+			} else {
+				application.logger.Panic("This request type is not acceptable")
 			}
 		} else {
-			application.logger.Panic("This request type is not acceptable")
+			if !channel.IsAlive() {
+				return
+			}
+			application.logger.Panic(err)
 		}
-	} else {
-		if !channel.IsAlive() {
-			return
-		}
-		application.logger.Panic(err)
 	}
+	application.logger.Println("Channel", channel.LocalEndPoint(), " - ", channel.RemoteEndPoint(),"was closed")
 }
 
 func (application *Application) accumulateData() ([]model.Person, error) {
@@ -50,16 +56,21 @@ func (application *Application) accumulateData() ([]model.Person, error) {
 
 	if !application.inTransaction {
 		application.inTransaction = true
+		defer func(){
+			application.inTransaction = false
+		}()
 		application.logger.Println("Added own entries total of", len(application.data))
 		for _, el := range application.data {
 			accumulate = append(accumulate, el)
 		}
 
 		for _, conn := range application.clients {
+			application.logger.Println("Sending data request to ",conn.RemoteEndPoint())
 			if bytes, err := network_dto.NewRequest(network_dto.GetNodeDataRequestType, ""); err == nil {
 				conn.Write(bytes)
 
 				if response, err := network.NextResponse(conn); err == nil {
+					application.logger.Println("Received response from ",conn.RemoteEndPoint())
 					dataResponse := network_dto.NodeDataResponse{}
 					if err := utils.Deserealize(response.ContentType, response.Data, &dataResponse); err == nil {
 						application.logger.Println("Adding received data from node with total of", dataResponse.Size)
@@ -77,7 +88,6 @@ func (application *Application) accumulateData() ([]model.Person, error) {
 			}
 		}
 
-		application.inTransaction = false
 	} else {
 		application.logger.Println("This node is already in transaction. Will not call connections.")
 	}

@@ -44,6 +44,7 @@ func (application *Application) handleRequest(dataRequest network_dto.DataReques
 			application.logger.Panic(err)
 		}
 
+		application.logger.Println("Sending data request to master node")
 		bytes, err := network_dto.NewRequest(network_dto.GetNodeDataRequestType, "")
 		if err != nil {
 			application.logger.Panic(err)
@@ -55,39 +56,43 @@ func (application *Application) handleRequest(dataRequest network_dto.DataReques
 			if err = utils.Deserealize(response.ContentType, response.Data, &nodeDataResponse); err != nil {
 				application.logger.Panic(err)
 			}
+			application.logger.Println("Data received from master node")
 		} else {
 			application.logger.Panic(err)
 		}
-	}
 
-	if len(dataRequest.OrderBy) > 0 {
-		var sortFunc func(a, b model.Person) int
+		if len(dataRequest.OrderBy) > 0 {
+			application.logger.Println("Ordering data")
+			var sortFunc func(a, b model.Person) int
 
-		switch strings.ToLower(dataRequest.OrderBy) {
-		case "firstname":
-			sortFunc = func(a, b model.Person) int {
-				return strings.Compare(a.FirstName, b.FirstName)
+			switch strings.ToLower(dataRequest.OrderBy) {
+			case "firstname":
+				sortFunc = func(a, b model.Person) int {
+					return strings.Compare(a.FirstName, b.FirstName)
+				}
+			case "lastname":
+				sortFunc = func(a, b model.Person) int {
+					return strings.Compare(a.LastName, b.LastName)
+				}
+			case "age":
+				sortFunc = func(a, b model.Person) int {
+					return int(a.Age) - int(b.Age)
+				}
 			}
-		case "lastname":
-			sortFunc = func(a, b model.Person) int {
-				return strings.Compare(a.LastName, b.LastName)
-			}
-		case "age":
-			sortFunc = func(a, b model.Person) int {
-				return int(a.Age) - int(b.Age)
-			}
-		}
 
-		if sortFunc != nil {
-			length := nodeDataResponse.Size
-			for i := 0; i < length; i++ {
-				for e := i + 1; e < length; e++ {
-					if sortFunc(nodeDataResponse.Data[i], nodeDataResponse.Data[e]) > 0 {
-						nodeDataResponse.Data[i], nodeDataResponse.Data[e] = nodeDataResponse.Data[e], nodeDataResponse.Data[i]
+			if sortFunc != nil {
+				length := nodeDataResponse.Size
+				for i := 0; i < length; i++ {
+					for e := i + 1; e < length; e++ {
+						if sortFunc(nodeDataResponse.Data[i], nodeDataResponse.Data[e]) > 0 {
+							nodeDataResponse.Data[i], nodeDataResponse.Data[e] = nodeDataResponse.Data[e], nodeDataResponse.Data[i]
+						}
 					}
 				}
 			}
 		}
+	} else {
+		application.logger.Println("Unable to find master node")
 	}
 
 	return network_dto.NewResponse(dataRequest.Accept, network_dto.DataResponse{

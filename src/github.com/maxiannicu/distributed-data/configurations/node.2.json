@@ -1,0 +1,33 @@
+{
+  "identificator": "node_tokyo",
+  "connections": [
+    "node_london"
+  ],
+  "contentType": 2,
+  "discoveryEndPoint": {
+    "host": "224.0.0.1",
+    "port": 31013
+  },
+  "data": [
+    {
+      "firstName": "Yu",
+      "lastName": "Kim",
+      "age": 22
+    },
+    {
+      "firstName": "Son",
+      "lastName": "Kim",
+      "age": 54
+    },
+    {
+      "firstName": "Ji Sun",
+      "lastName": "Park",
+      "age": 24
+    },
+    {
+      "firstName": "Ji",
+      "lastName": "Kim",
+      "age": 24
+    }
+  ]
+}
