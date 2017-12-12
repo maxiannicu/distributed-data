@@ -1,7 +1,8 @@
 {
   "identificator": "node_london",
   "connections": [
-    "node_chisinau"
+    "node_chisinau",
+    "node_tokyo"
   ],
   "contentType": 1,
   "discoveryEndPoint": {

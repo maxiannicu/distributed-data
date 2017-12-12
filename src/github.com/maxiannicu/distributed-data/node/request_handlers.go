@@ -5,7 +5,6 @@ import (
 	"github.com/maxiannicu/distributed-data/network_dto"
 	"github.com/maxiannicu/distributed-data/model"
 	"github.com/maxiannicu/distributed-data/utils"
-	"fmt"
 )
 
 func (application *Application) handleTcpRequests() {

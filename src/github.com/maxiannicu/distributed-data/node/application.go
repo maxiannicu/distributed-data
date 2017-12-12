@@ -20,6 +20,8 @@ type Application struct {
 
 func NewApplication(config ApplicationConfig) (*Application, error) {
 	logger := utils.NewLogger(config.Identificator)
+	logger.Println("Starting node")
+	logger.Println("Data size =",len(config.Data))
 	logger.Println("Starting tcp server")
 	server, err := network.NewTcpServer()
 

@@ -51,7 +51,7 @@ func (application *Application) getDiscoveredNodes() []network_dto.DiscoveryResp
 		} else {
 			response := network_dto.DiscoveryResponse{}
 			utils.Deserealize(utils.JsonFormat, bytes, &response)
-			application.logger.Println("Discovered", response.ConnectionEndPoint)
+			application.logger.Println("Discovered", response.ConnectionEndPoint, ",data size:",response.DataSize)
 			responses = append(responses, response)
 		}
 	}
